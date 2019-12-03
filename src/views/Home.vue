@@ -1,18 +1,33 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div v-if="currentUser">
+    <p class="text-center my-4">
+      Welcome, {{ currentUser.firstName || currentUser.email }}
+    </p>
+    <todos-list />
+  </div>
+
+  <div v-else>
+    <p>You're not signed in!</p>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+<script lang="ts">
+import { CURRENT_USER } from '@/graphql/documents/queries';
+import { createComponent } from '@vue/composition-api';
+import { useQuery, useResult } from '@vue/apollo-composable';
 
-export default {
-  name: "home",
+import TodosList from '@/components/TodosList.vue';
+
+const Home = createComponent({
   components: {
-    HelloWorld
-  }
-};
+    TodosList,
+  },
+  setup() {
+    const { result: currentUserQueryResult } = useQuery(CURRENT_USER);
+    const currentUser = useResult(currentUserQueryResult);
+    return { currentUser };
+  },
+});
+
+export default Home;
 </script>
